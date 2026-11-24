@@ -413,6 +413,36 @@
     box-shadow:0 18px 50px rgba(80,60,180,.4);
   }
 
+  /* 終極防幽靈預選覆蓋 */
+  .option:focus {
+    outline: none !important;
+    background: rgba(167,139,250,.05) !important;
+    border-color: var(--line) !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  .option:focus .key {
+    background: rgba(127,182,255,.12) !important;
+    color: var(--glow2) !important;
+    border-color: rgba(127,182,255,.25) !important;
+  }
+  
+  /* 保留我們手動加上 selected 類時的樣式，優先級最高 */
+  .option.selected, 
+  .option.selected:focus {
+    border-color: var(--glow) !important;
+    background: linear-gradient(120deg,rgba(167,139,250,.20),rgba(127,182,255,.12)) !important;
+    box-shadow: 0 0 0 1px rgba(167,139,250,.4), 0 10px 30px rgba(100,80,220,.25) !important;
+  }
+
+  .option.selected .key,
+  .option.selected:focus .key {
+    background: linear-gradient(120deg,var(--glow2),var(--glow)) !important;
+    color: #0a0720 !important;
+    border-color: transparent !important;
+  }
+
 </style>
 </head>
 <body>
@@ -672,15 +702,15 @@ function renderQuestion(){
   q.opts.forEach((opt, oi) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "option"; // 先給個純淨的基礎類別
+    btn.className = "option";
     
-    // 如果這題之前選過，才恢復高亮（用於點擊上一題返回時）
     if (state.answers[i] === oi) {
       btn.classList.add("selected");
     }
     
-    // 【新增】切換題目時，強制讓這個按鈕失去焦點
-    btn.blur();
+    // 阻止手機端的點擊穿透（幽靈點擊）
+    btn.style.touchAction = "manipulation"; 
+
     btn.innerHTML = `<span class="key">${LETTERS[oi]}</span><span class="txt"></span>`;
     btn.querySelector(".txt").textContent = opt.t;
     btn.addEventListener("click", () => selectOption(oi));
@@ -700,33 +730,34 @@ function updateNextButton(){
 }
 
 function selectOption(oi){
-  // 1. 记录答案
+  // 1. 記錄答案
   state.answers[state.index] = oi;
 
-  // 2. 暴力清除所有选项的高亮（不管三七二十一，全扒掉）
   const allBtns = elOptions.querySelectorAll('.option');
   
   allBtns.forEach((btn, idx) => {
-    // 清除高亮
+    // 清除所有高亮
     btn.classList.remove("selected");
-    // 徹底移除手機端可能殘留的焦點
-    btn.blur(); 
     
-    // 如果這是剛剛點擊的按鈕，加上高亮，並【瞬間禁用】
-    // 禁用按鈕可以徹底阻斷手機瀏覽器的點擊穿透與焦點殘留
     if (idx === oi) {
+      // 2. 給選中的按鈕加高亮
       btn.classList.add("selected");
-      btn.style.pointerEvents = "none"; // 瞬間斷開點擊事件
+      
+      // 3. 徹底阻斷手機的點擊殘留：立刻讓按鈕失去焦點
+      btn.blur(); 
     }
-  });  
+  });
 
   updateNextButton();
 
-  // 4. 稍微等待一会，再跳下一题
+  // 4. 留出視覺反饋時間後，進入下一題
   if(state.index < QUESTIONS.length - 1){
     setTimeout(() => {
+      // 延遲結束後，再強制全體失焦一次，確保切題瞬間毫無殘留
+      const btns = elOptions.querySelectorAll('.option');
+      btns.forEach(b => b.blur());
       goNext();
-    }, 300); 
+    }, 250); 
   }
 }
 function goPrev(){
@@ -738,14 +769,13 @@ function goPrev(){
 
 function goNext(){
   if(state.answers[state.index] === null) return;
-
+  
   if(state.index < QUESTIONS.length - 1){
     state.index++;
     renderQuestion();
-    // 關鍵：切換新題目後，強制讓瀏覽器的焦點回到網頁的最外層（body）
-    // 這樣它就不會把焦點默認給新出現的第一個按鈕 (A) 了！
-    document.body.focus();
-    document.activeElement.blur();
+    
+    // 切換題目後，強制讓手機瀏覽器失去所有焦點
+    document.activeElement.blur(); 
   } else {
     finish();
   }
