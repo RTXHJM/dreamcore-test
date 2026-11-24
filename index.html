@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>梦核人格测试 · 42题 · 17型</title>
+<style>
+  /* ============================================================
+     梦核主题 · 冷紫主色 / 冷蓝次色 / 浅粉点缀
+     ============================================================ */
+  :root{
+    /* —— 背景层次：深紫夜空 —— */
+    --bg1:#07051a;          /* 最深：夜紫黑 */
+    --bg2:#0e0a2e;          /* 中间：深紫蓝 */
+    --bg3:#171036;          /* 最浅：暗紫 */
+
+    /* —— 文字 —— */
+    --ink:#ece9ff;          /* 主文字：冷白紫 */
+    --sub:#9c97c9;          /* 次要文字：雾紫灰 */
+    --line:rgba(196,180,255,.14); /* 冷紫描边 */
+
+    /* —— 强调色 —— */
+    --glow:#a78bfa;         /* 主色：冷紫（薰衣草紫） */
+    --glow2:#7fb6ff;        /* 次色：冷蓝 */
+    --pink:#ffb8d9;         /* 点缀：浅粉（仅少量） */
+    --rose:#ff8fc7;         /* 粉色深一点，做渐变收尾 */
+
+    /* —— 卡片 / 圆角 —— */
+    --card:rgba(24,18,58,.55);
+    --radius:22px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    color:var(--ink);
+    background:
+      /* 左下角加一个冷蓝光斑，弥补大屏下半部分的空旷 */
+      radial-gradient(900px 600px at 10% 110%, rgba(127,182,255,.18), transparent 60%),
+      /* 原来的左上冷紫 */
+      radial-gradient(1100px 760px at 12% -12%, rgba(167,139,250,.42), transparent 60%),
+      /* 原来的右上冷蓝 */
+      radial-gradient(1000px 700px at 108% 8%, rgba(127,182,255,.30), transparent 58%),
+      /* 右下浅粉点缀 */
+      radial-gradient(820px 820px at 88% 118%, rgba(255,184,217,.20), transparent 62%),
+      /* 底部渐变改成更深更平滑的过渡 */
+      linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 60%, #0a0620 100%);
+    min-height:100vh;
+    display:block;
+    padding:40px 16px;
+    overflow-x:hidden;
+    background-attachment: fixed; /* 新增：让背景固定，滑动时背景不动，更沉浸 */
+  }
+
+  /* —— 星尘：冷紫/冷蓝细点 —— */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      radial-gradient(1.4px 1.4px at 20% 30%, rgba(200,190,255,.8), transparent),
+      radial-gradient(1.2px 1.2px at 70% 15%, rgba(150,200,255,.7), transparent),
+      radial-gradient(1.6px 1.6px at 85% 60%, rgba(255,190,225,.6), transparent),
+      radial-gradient(1.2px 1.2px at 35% 80%, rgba(180,170,255,.6), transparent),
+      radial-gradient(1.6px 1.6px at 55% 45%, rgba(160,210,255,.6), transparent),
+      radial-gradient(1px 1px at 10% 65%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1px 1px at 92% 35%, rgba(220,210,255,.7), transparent);
+    background-repeat:no-repeat;
+    animation:twinkle 7s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle{from{opacity:.45}to{opacity:.95}}
+
+  .app{
+    position:relative;z-index:1;
+    width:100%;max-width:720px;
+    margin:0 auto;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    backdrop-filter:blur(20px) saturate(130%);
+    -webkit-backdrop-filter:blur(20px) saturate(130%);
+    box-shadow:
+      0 34px 90px rgba(10,5,40,.75),
+      0 0 0 1px rgba(167,139,250,.06) inset,
+      0 1px 0 rgba(255,255,255,.08) inset;
+    padding:34px 30px 30px;
+    overflow:hidden;
+  }
+  /* 卡片顶部一道冷紫→冷蓝的细光边 */
+  .app::before{
+    content:"";position:absolute;top:0;left:12%;right:12%;height:1px;
+    background:linear-gradient(90deg,transparent,var(--glow),var(--glow2),transparent);
+    opacity:.7;
+  }
+  @media(max-width:520px){ .app{padding:24px 18px} }
+
+  .screen{display:none;animation:fade .5s ease both}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+  /* ============ 开始页 ============ */
+  .hero{text-align:center;padding:20px 0 8px}
+  .hero .eyebrow{
+    display:inline-block;font-size:12px;letter-spacing:.24em;
+    color:var(--glow2);
+    border:1px solid rgba(127,182,255,.35);
+    background:rgba(127,182,255,.07);
+    padding:6px 14px;border-radius:999px;margin-bottom:22px;
+  }
+  .hero h1{
+    font-size:clamp(28px,5vw,40px);line-height:1.25;font-weight:800;
+    background:linear-gradient(120deg,#fff 0%,var(--glow) 42%,var(--glow2) 70%,var(--pink) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    letter-spacing:.02em;
+    filter:drop-shadow(0 4px 24px rgba(167,139,250,.35));
+  }
+  .hero p.sub{color:var(--sub);margin-top:14px;font-size:15px;line-height:1.8}
+  .meta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:22px 0 26px}
+  .meta span{
+    font-size:12.5px;color:var(--sub);
+    border:1px solid var(--line);padding:6px 12px;border-radius:999px;
+    background:rgba(167,139,250,.05);
+  }
+
+  /* ============ 按钮 ============ */
+  .btn{
+    appearance:none;border:none;cursor:pointer;font:inherit;
+    padding:15px 30px;border-radius:14px;font-weight:700;font-size:16px;
+    color:#0a0720;
+    background:linear-gradient(120deg,var(--glow2),var(--glow) 52%,var(--pink));
+    box-shadow:0 14px 38px rgba(127,120,255,.45), 0 0 0 1px rgba(255,255,255,.08) inset;
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 20px 50px rgba(140,120,255,.6);filter:brightness(1.07)}
+  .btn:active{transform:translateY(0)}
+  .btn.ghost{
+    background:rgba(167,139,250,.06);color:var(--ink);
+    border:1px solid var(--line);box-shadow:none;
+  }
+  .btn.ghost:hover{border-color:rgba(167,139,250,.5);background:rgba(167,139,250,.12)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;filter:none}
+  .foot-note{color:var(--sub);font-size:12.5px;text-align:center;margin-top:18px;line-height:1.7}
+
+  /* ============ 答题页 ============ */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:8px}
+  .dim-tag{font-size:12.5px;color:var(--glow2);letter-spacing:.06em}
+  .counter{font-size:13px;color:var(--sub);font-variant-numeric:tabular-nums}
+  .progress-wrap{margin:14px 0 26px}
+  .progress-bar{height:8px;border-radius:999px;background:rgba(167,139,250,.10);overflow:hidden;border:1px solid var(--line)}
+  .progress-fill{
+    height:100%;width:0;border-radius:999px;
+    background:linear-gradient(90deg,var(--glow2),var(--glow) 55%,var(--pink));
+    transition:width .35s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 0 20px rgba(167,139,250,.7);
+  }
+  .q-title{font-size:clamp(18px,3vw,22px);font-weight:700;line-height:1.6;margin-bottom:22px;min-height:2.2em}
+  .options{display:flex;flex-direction:column;gap:12px}
+  .option{
+    text-align:left;width:100%;cursor:pointer;font:inherit;color:var(--ink);
+    background:rgba(167,139,250,.05);
+    border:1px solid var(--line);
+    border-radius:16px;padding:16px 18px;
+    display:flex;align-items:center;gap:14px;
+    transition:all .18s ease;
+  }
+  .option:hover{
+    background:rgba(167,139,250,.13);
+    border-color:rgba(167,139,250,.6);
+    transform:translateX(3px);
+    box-shadow:0 8px 26px rgba(80,60,180,.25);
+  }
+  .option .key{
+    flex:0 0 30px;height:30px;border-radius:9px;
+    display:grid;place-items:center;font-weight:800;font-size:13px;
+    background:rgba(127,182,255,.12);border:1px solid rgba(127,182,255,.25);
+    color:var(--glow2);transition:all .18s ease;
+  }
+  .option:hover .key,
+  .option.selected .key{
+    background:linear-gradient(120deg,var(--glow2),var(--glow));
+    color:#0a0720;border-color:transparent;
+  }
+  .option.selected{
+    border-color:var(--glow);
+    background:linear-gradient(120deg,rgba(167,139,250,.20),rgba(127,182,255,.12));
+    box-shadow:0 0 0 1px rgba(167,139,250,.4), 0 10px 30px rgba(100,80,220,.25);
+  }
+  .option .txt{flex:1;font-size:15.5px;line-height:1.55}
+  .nav-row{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
+  .nav-row .btn{padding:12px 22px;font-size:14px}
+  .hint{color:var(--sub);font-size:12px;text-align:center;margin-top:14px}
+
+  /* ============ 结果页 ============ */
+  .result-head{text-align:center;margin-bottom:26px}
+  .badge{
+    display:inline-block;font-size:12px;letter-spacing:.2em;color:var(--glow2);
+    border:1px solid rgba(127,182,255,.4);padding:5px 14px;border-radius:999px;margin-bottom:14px;
+    background:rgba(127,182,255,.08);
+  }
+  .result-head h2{
+    font-size:clamp(26px,5vw,36px);font-weight:800;line-height:1.25;
+    background:linear-gradient(120deg,#fff,var(--glow) 48%,var(--pink));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 4px 22px rgba(167,139,250,.35));
+  }
+  .result-head .code{
+    display:inline-block;margin-top:10px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    color:var(--sub);letter-spacing:.35em;font-size:13px;
+  }
+  .match-pill{
+    display:inline-flex;align-items:center;gap:8px;margin-top:14px;
+    padding:8px 16px;border-radius:999px;font-size:13px;font-weight:700;
+    color:#0a0720;
+    background:linear-gradient(120deg,var(--glow2),var(--glow));
+    box-shadow:0 8px 24px rgba(127,120,255,.4);
+  }
+  .section-label{
+    font-size:12px;letter-spacing:.22em;color:var(--sub);
+    margin:30px 0 14px;display:flex;align-items:center;gap:12px;
+  }
+  .section-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+
+  .desc-box{
+    background:linear-gradient(150deg,rgba(167,139,250,.08),rgba(127,182,255,.05));
+    border:1px solid var(--line);
+    border-radius:16px;padding:20px 22px;line-height:1.9;color:#dcd8ff;font-size:15.5px;
+  }
+
+  .dims{display:flex;flex-direction:column;gap:14px}
+  .dim-row{background:rgba(167,139,250,.04);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .dim-row .top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+  .dim-row .name{font-size:13px;color:var(--sub);letter-spacing:.04em}
+  .dim-row .val{font-size:14px;font-weight:700}
+  .dim-row .val em{font-style:normal;color:var(--pink)}
+  .track{height:7px;border-radius:999px;background:rgba(167,139,250,.10);overflow:hidden;border:1px solid var(--line)}
+  .track > i{
+    display:block;height:100%;border-radius:999px;
+    background:linear-gradient(90deg,var(--glow2),var(--glow) 60%,var(--pink));
+    transition:width .8s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 0 14px rgba(167,139,250,.6);
+  }
+
+  .second-card{
+    background:linear-gradient(160deg,rgba(127,182,255,.07),rgba(167,139,250,.04));
+    border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+  }
+  .second-card .ttl{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .second-card .ttl b{font-size:16px;color:var(--ink)}
+  .second-card .ttl span{font-size:12.5px;color:var(--glow2);font-weight:700}
+  .second-card p{font-size:14px;line-height:1.8;color:#c9c4ec}
+
+  .actions{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+  .actions .btn{flex:1;min-width:150px;text-align:center;padding:14px 18px;font-size:14.5px}
+  .copy-tip{text-align:center;color:var(--pink);font-size:13px;margin-top:12px;height:18px;transition:opacity .3s}
+
+  /* ============ 图鉴入口 ============ */
+  .codex-entry{margin-top:26px;text-align:center}
+  .codex-entry .btn{width:100%;padding:14px 18px;font-size:14.5px}
+
+  /* ============ 图鉴弹层 ============ */
+  .codex-overlay{
+    position:fixed;inset:0;z-index:50;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+    background:rgba(6,3,22,.72);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    opacity:0;pointer-events:none;
+    transition:opacity .3s ease;
+  }
+  .codex-overlay.open{opacity:1;pointer-events:auto}
+
+  .codex-panel{
+    width:100%;max-width:720px;
+    max-height:90vh;
+    display:flex;flex-direction:column;
+    background:
+      linear-gradient(150deg,rgba(167,139,250,.10),rgba(127,182,255,.06)),
+      rgba(18,13,46,.96);
+    border:1px solid rgba(196,180,255,.18);
+    border-radius:22px;
+    box-shadow:0 40px 100px rgba(0,0,0,.7);
+    transform:translateY(18px) scale(.98);
+    transition:transform .32s cubic-bezier(.4,0,.2,1);
+    overflow:hidden;
+  }
+  .codex-overlay.open .codex-panel{transform:none}
+
+  .codex-head{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:16px 18px 12px;
+    border-bottom:1px solid rgba(196,180,255,.14);
+    background:linear-gradient(180deg,rgba(167,139,250,.10),transparent);
+  }
+  .codex-eyebrow{
+    font-size:11px;letter-spacing:.24em;color:var(--glow2);
+    margin-bottom:6px;
+  }
+  .codex-head h3{
+    font-size:20px;font-weight:800;
+    background:linear-gradient(120deg,#fff,var(--glow) 60%,var(--pink));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .codex-close{
+    flex:0 0 38px;height:38px;border-radius:50%;
+    border:1px solid rgba(196,180,255,.2);
+    background:rgba(167,139,250,.08);
+    color:var(--ink);font-size:15px;cursor:pointer;
+    display:grid;place-items:center;
+    transition:all .18s ease;
+  }
+  .codex-close:hover{background:rgba(255,143,199,.18);border-color:var(--pink);color:var(--pink)}
+
+  .codex-body{
+    padding:16px;
+    overflow-y:auto;
+    display:grid;
+    grid-template-columns: repeat(2, 1fr); /* 强制两列 */
+    gap:12px; /* 间距缩小，给图片留出更多空间 */
+  }
+  @media(min-width:640px){
+    .codex-body{grid-template-columns:1fr 1fr}
+  }
+
+  .codex-card{
+    position:relative;
+    background:rgba(167,139,250,.05);
+    border:1px solid rgba(196,180,255,.14);
+    border-radius:12px;
+    padding:8px;
+    transition:all .2s ease;
+  }
+  .codex-card:hover{
+    border-color:rgba(167,139,250,.5);
+    background:rgba(167,139,250,.1);
+    transform:translateY(-2px);
+  }
+  .codex-card.is-current{
+    border-color:var(--glow);
+    background:linear-gradient(140deg,rgba(167,139,250,.22),rgba(127,182,255,.12));
+    box-shadow:0 0 0 1px rgba(167,139,250,.5), 0 14px 40px rgba(100,80,220,.35);
+  }
+
+  .codex-card-top{display:flex;align-items:center;gap:3px;margin-bottom:6px;min-height: 28px;}
+  .codex-index{
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:8px;font-weight:700;color:var(--glow2);
+    opacity:.8;flex-shrink: 0;         /* 绝对不让序号被挤压变形 */
+  }
+  .codex-card h4{
+    font-size:10px;font-weight:800;line-height:1.3;flex-grow: 1;min-width: 0;
+    /* 核心修改：允许换行，但最多显示2行 */
+    white-space: normal; /* 允许自然换行 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 限制最多2行 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color:var(--ink);
+  }
+  .codex-you{
+    position: absolute; /* 绝对定位 */
+    top: 6px;           /* 靠上 */
+    right: 6px;         /* 靠右 */
+    z-index: 10;        /* 保证浮在图片上面 */
+  
+    font-size: 10px;    /* 字号小一点 */
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 999px;
+    color: #0a0720;
+    background: linear-gradient(120deg, var(--glow2), var(--pink));
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  }
+  .codex-code{
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:8px;letter-spacing:.3em;
+    color:var(--pink);margin-bottom:4px;
+  }
+  .codex-dims{
+    font-size:8px;color:var(--glow2);
+    line-height:1.7;margin-bottom:6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 最多显示2行维度，防撑破 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    opacity:.92;
+  }
+  .codex-desc{
+    font-size:8px;line-height:1.5;color:#c9c4ec;
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* 简介最多4行，如果嫌长可以改小 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .codex-avatar{
+    display:block;width:100%;aspect-ratio:3/4;object-fit:cover;
+    border-radius:8px;margin-bottom:8px;
+    border:1px solid rgba(196,180,255,.18);
+    background:rgba(167,139,250,.06);
+  }
+  .codex-card.is-current .codex-avatar{
+    border-color:var(--glow);
+    box-shadow:0 0 0 1px var(--glow), 0 10px 30px rgba(100,80,220,.35);
+  }
+
+  .result-avatar{
+    display:block;width:min(200px,50%);aspect-ratio:3/4;max-height:300px;object-fit:cover;
+    margin:0 auto 18px;border-radius:20px;
+    border:1px solid rgba(196,180,255,.2);
+    box-shadow:0 18px 50px rgba(80,60,180,.4);
+  }
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <section id="screen-start" class="screen active">
+    <div class="hero">
+      <div class="eyebrow">DREAMCORE · PERSONALITY</div>
+      <h1>梦核人格图鉴</h1>
+      <p class="sub">42 道题 · 6 个维度 · 17 种人格<br>在超现实的镜像里，照见你入世的方式。</p>
+      <div class="meta"><span>约 6 分钟</span><span>42 题</span><span>17 型结果</span></div>
+      <button class="btn" id="btn-start" type="button">开始测试</button>
+      <p class="foot-note">请凭第一直觉作答，没有对错之分。</p>
+    </div>
+  </section>
+
+  <section id="screen-quiz" class="screen">
+    <div class="topbar">
+      <span class="dim-tag" id="dim-tag">维度</span>
+      <span class="counter" id="counter">1 / 42</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div></div>
+    <h2 class="q-title" id="q-title"></h2>
+    <div class="options" id="options"></div>
+    <div class="nav-row">
+      <button class="btn ghost" id="btn-prev" type="button" disabled>上一题</button>
+      <button class="btn" id="btn-next" type="button" disabled>下一题</button>
+    </div>
+    <p class="hint">选择后可返回修改，最后一题会显示「查看结果」</p>
+  </section>
+
+  <section id="screen-result" class="screen">
+    <div class="result-head">
+      <div class="badge">YOUR DREAMCORE TYPE</div>
+      <img class="result-avatar" id="r-avatar" src="" alt="">
+      <h2 id="r-name"></h2>
+      <div class="code" id="r-code"></div>
+      <div class="match-pill" id="r-match"></div>
+    </div>
+    <div class="section-label">主型释义</div>
+    <div class="desc-box" id="r-desc"></div>
+    <div class="section-label">六维画像</div>
+    <div class="dims" id="r-dims"></div>
+    <div class="section-label">次型</div>
+    <div class="second-card">
+      <div class="ttl"><b id="r-second-name"></b><span id="r-second-match"></span></div>
+      <p id="r-second-desc"></p>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" id="btn-restart" type="button">重新测试</button>
+      <button class="btn" id="btn-share" type="button">复制结果分享</button>
+    </div>
+    <div class="copy-tip" id="copy-tip"></div>
+    <!-- 图鉴入口 -->
+    <div class="codex-entry">
+      <button class="btn ghost" id="btn-codex" type="button">📖 查看全部 17 型图鉴</button>
+    </div>
+
+    <!-- 图鉴弹层（默认隐藏） -->
+    <div class="codex-overlay" id="codex-overlay" aria-hidden="true">
+      <div class="codex-panel" role="dialog" aria-modal="true" aria-label="17型图鉴">
+        <div class="codex-head">
+          <div>
+            <div class="codex-eyebrow">DREAMCORE CODEX</div>
+            <h3>17 型人格图鉴</h3>
+          </div>
+          <button class="codex-close" id="codex-close" type="button" aria-label="关闭">✕</button>
+        </div>
+        <div class="codex-body" id="codex-list"></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ==================== 数据 ==================== */
+const DIMENSIONS = ["你的梦游正在……","只不过是一层滤镜？","心脏是怎样构成的","时间也有体感","回声之声","深渊、深渊"];
+const TIER_NAMES = [
+  ["坠落着","飘荡着","燃烧着"],
+  ["漾漾水雾","溯洄鳞光","色散棱镜"],
+  ["朵朵棉花云","水母与泡泡","冷切石英"],
+  ["倒流的挂钟","融化的沙漏","无限延伸的走廊"],
+  ["织就成茧","深井","空谷"],
+  ["逆光海","生出半截的门","跃然之鲸"],
+];
+
+const QUESTIONS = [
+  // 1
+  {q:"周五晚上突然空出三小时，你会：",opts:[{t:"把灯关掉，让房间沉默",s:1},{t:"站在窗边，看要不要出去",s:2},{t:"开大音乐，把夜晚点亮",s:3}]},
+  {q:"你走进一场不熟的聚会，就像走进一处：",opts:[{t:"灯光很亮、人声很热闹的舞厅",s:3},{t:"可以随时离开的走廊",s:2},{t:"墙角有影子、可以先站一会儿的房间",s:1}]},
+  {q:"连续社交三天后，你最想：",opts:[{t:"只留一扇窗，熟人可以探头",s:2},{t:"再来一场Party，让夜继续烧",s:3},{t:"把自己关进可以躺平的静音室",s:1}]},
+  {q:"群里有人打开了新话题的大门，你会像：",opts:[{t:"从门缝里看一眼，完全不急着进去",s:1},{t:"直接推门进去，把话接住",s:3},{t:"在门口站一下，看气氛再决定",s:2}]},
+  {q:"理想的工作座位是：",opts:[{t:"人来人往的中央车站",s:3},{t:"靠墙的角落",s:1},{t:"半开的包厢，能观望也能躲",s:2}]},
+  {q:"朋友说“十分钟后到你楼下”，你：",opts:[{t:"先看看自己现在是什么状态",s:2},{t:"心里一紧，但还是去开门",s:1},{t:"太好了，叫TA上来一起把夜唱响！",s:3}]},
+  {q:"你比较像是房间里：",opts:[{t:"忽明忽暗的灯",s:2},{t:"一进门就呼啸而来的风",s:3},{t:"房间里没被光照到的阴影",s:1}]},
+  // 2
+  {q:"朋友问“这电影在演什么”，你会偏向于回答：",opts:[{t:"把电影拆成几段连贯的剧情",s:3},{t:"说它像一场梦，朦胧、美、让你动容",s:1},{t:"先讲大概，再补一点感觉，或者反之",s:2}]},
+  {q:"走进一家新餐厅，你第一眼看见：",opts:[{t:"菜单上的价格和人群",s:2},{t:"整家店的气味和光线",s:1},{t:"动线、座位、厨房、收银台的位置",s:3}]},
+  {q:"做决定时，你脑中出现：",opts:[{t:"一团雾雾雾雾……",s:1},{t:"一张摊开的分析表格",s:3},{t:"几个选项正在互相博弈",s:2}]},
+  {q:"别人讲话绕来绕去，你会：",opts:[{t:"直接问“所以重点是？”",s:3},{t:"偶尔把话拉回来",s:2},{t:"跟着飘，最后才发现离题",s:1}]},
+  {q:"整理房间时，你会：",opts:[{t:"看到什么整理什么，跟着感觉走~",s:1},{t:"分区域收，顺序随意，看当天心情",s:2},{t:"先分类，再定位，再检查一遍",s:3}]},
+  {q:"你比较容易记得：",opts:[{t:"大概发生了什么事情",s:2},{t:"细节、时间、谁说了什么",s:3},{t:"当下的心情",s:1}]},
+  {q:"气象系统中，你会是：",opts:[{t:"一台扫描讯号的雷达",s:3},{t:"一场不确定的天气",s:1},{t:"一位看图播报的主播",s:2}]},
+  // 3
+  {q:"朋友做错事但很难过，你：",opts:[{t:"先陪伴一会儿，再委婉提醒",s:2},{t:"先安慰，对错之后再说",s:1},{t:"直接讲清楚，以免再错",s:3}]},
+  {q:"团队有人摆烂，你会：",opts:[{t:"当场把问题摊开",s:3},{t:"看情况，可能私下提醒",s:2},{t:"心里不爽，但不太敢讲",s:1}]},
+  {q:"做决定时，你最怕：",opts:[{t:"伤到别人",s:1},{t:"前后逻辑说不通",s:3},{t:"既不讨好又不称心如意",s:2}]},
+  {q:"别人称赞你，你的反应是：",opts:[{t:"他称赞我是什么目的",s:3},{t:"很开心，而且还会记很久",s:1},{t:"说谢谢，心里开始小剧场",s:2}]},
+  {q:"你更受不了：",opts:[{t:"不确定",s:2},{t:"不讲理蛮横的人",s:3},{t:"冷漠无情的人",s:1}]},
+  {q:"朋友跟你借钱，你：",opts:[{t:"直接说，借或者不借",s:3},{t:"很难拒绝，先借再说？",s:1},{t:"问用途，看交情",s:2}]},
+  {q:"你觉得“善良”更像是：",opts:[{t:"不让别人为难",s:1},{t:"该软则软，该硬则硬",s:2},{t:"把事情做对，才是真善良",s:3}]},
+  // 4
+  {q:"出门旅行前，你倾向于：",opts:[{t:"门票、酒店、路线都先安排好",s:3},{t:"前一天晚上快睡觉才收拾行李，也没什么固定计划",s:1},{t:"收拾完行李大致想一下，边旅行边调整方案",s:2}]},
+  {q:"截止日在三天后，你会：",opts:[{t:"今天就开始，提前完成",s:3},{t:"中间做一点，最后收尾",s:2},{t:"最后一天再冲",s:1}]},
+  {q:"朋友临时改约，你的反应是：",opts:[{t:"看有没有其他事",s:2},{t:"计划被打乱，心里为难，但还是配合",s:3},{t:"好啊，反正本来就没计划",s:1}]},
+  {q:"你买东西的风格偏向：",opts:[{t:"喜欢就买",s:1},{t:"比一下价再买",s:2},{t:"先列清单，确认规格数量款式再买",s:3}]},
+  {q:"排队等了很久，你选择：",opts:[{t:"观察周围，找点事做",s:2},{t:"刷手机、放空",s:1},{t:"算算还要等多久，有没有替代方案",s:3}]},
+  {q:"对待待办事项你通常：",opts:[{t:"哪有待办事项？我想想......",s:1},{t:"记录下来，逐项打勾",s:3},{t:"记几个重点",s:2}]},
+  {q:"突然多出一件急事，你往往：",opts:[{t:"有条件则立刻处理，免得耽误后续进度",s:3},{t:"看轻重缓急",s:2},{t:"先放着，等等再说",s:1}]},
+  // 5
+  {q:"和朋友聊完一场深入的天，回家后你：",opts:[{t:"还反复思考、回想TA说的话",s:3},{t:"大概记得重点，情绪很快淡掉",s:1},{t:"会想一会儿，但不会再深入",s:2}]},
+  {q:"别人随口一句批评，你往往：",opts:[{t:"听过就算了，不太留意",s:1},{t:"可能介意一会儿，然后能够放下",s:2},{t:"表面没事，心里回放很多遍",s:3}]},
+  {q:"看完一部很打动你的电影，你会：",opts:[{t:"会回味一下，但能回到日常",s:2},{t:"好几天都还在那种情绪里",s:3},{t:"散场就差不多回神了",s:1}]},
+  {q:"你经过一个曾经很重要的地方，你：",opts:[{t:"没什么特别感觉",s:1},{t:"内心会响起很多旧声音旧故事",s:3},{t:"会怀念一下，然后继续向前",s:2}]},
+  {q:"争吵结束后，你：",opts:[{t:"脑中还会不停歇地想着那些争吵的句子并头脑风暴",s:3},{t:"会整理一下，才能放下",s:2},{t:"过了就过了",s:1}]},
+  {q:"听到一首旧歌，你：",opts:[{t:"会想起一些事，但不至于沉进去",s:2},{t:"觉得好听，但不一定有感",s:1},{t:"整个人被拉回某个时空",s:3}]},
+  {q:"你独处时，脑内的声音通常：",opts:[{t:"比较安静，没太多回响",s:1},{t:"很多层，像空谷回音",s:3},{t:"有一些零碎的声音",s:2}]},
+  // 6
+  {q:"看到没吃过的菜品，你：",opts:[{t:"直接点新的菜品，踩雷也认",s:3},{t:"先点熟悉的",s:1},{t:"问店员推荐再决定",s:2}]},
+  {q:"有机会换到陌生城市工作，你：",opts:[{t:"先想风险，能不动则不动",s:1},{t:"有机会就去，去了再想办法",s:3},{t:"评估各方面条件再说",s:2}]},
+  {q:"你玩游戏打BOSS时：",opts:[{t:"看情况，有信心不一定存档，也可能忘了",s:2},{t:"必先存档再去打",s:1},{t:"直接冲！死了重来",s:3}]},
+  {q:"面对不确定的事，你：",opts:[{t:"先按兵不动，等它变确定",s:1},{t:"边观望边做，边做边观望",s:2},{t:"先做了再说",s:3}]},
+  {q:"你比较喜欢：",opts:[{t:"每次走不同的路线",s:3},{t:"偶尔换一条试试",s:2},{t:"熟悉的路线",s:1}]},
+  {q:"朋友揪你去没去过的活动，你：",opts:[{t:"先问清楚再决定",s:1},{t:"先答应，到场再说",s:3},{t:"看当天心情",s:2}]},
+  {q:"你在梦里走到一条路的尽头，前面有一扇只开了一半的门，你会：",opts:[{t:"站在门口看一会儿，伸手推门瞅一瞅，再决定要不要进去",s:2},{t:"直接侧身挤进去，进去再看里面是什么",s:3},{t:"先回到熟悉的街口，等一等情势会不会自己明朗",s:1}]},
+];
+
+const PERSONALITIES = [
+  {name:"倒流挂钟里的茧",code:"111111",dims:"坠落着 · 漾漾水雾 · 朵朵棉花云 · 倒流的挂钟 · 织就成茧 · 逆光海",desc:"你把所有声音织进身体，时间也滞在茧里。你习惯把话先收进心里。别人以为你没什么反应，其实你一直在重播旧对话、反复想当时该怎么说。你记得住别人忽略的情绪与细节，却常把真正的想法吞回去。面对未知，你更愿意缩在熟悉的地方，让时间倒着走，也不愿先开口冒险。"},
+  {name:"逆光海的水雾",code:"111121",dims:"坠落着 · 漾漾水雾 · 朵朵棉花云 · 倒流的挂钟 · 深井 · 逆光海",desc:"你温柔内敛，情绪不会一下子浮上来，而是先沉下去，再慢慢释放。你不争不抢，遇到未知先观望，不急着回应世界。你共感强，容易被别人的状态影响，却仍会在表面上留一层温和的光。你像逆光海上的水雾，也像一朵慢慢沉进深井的棉花云：轻，但落得很深。"},
+  {name:"访客：水母、泡泡与鳞光",code:"122222",dims:"坠落着 · 溯洄鳞光 · 水母与泡泡 · 融化的沙漏 · 深井 · 生出半截的门",desc:"你是一个柔软但会试探的人。面对未知，你不会立刻冲进去，也不会干脆退开，而是先靠近一点、碰一下、看一下反应，再决定要不要继续。你心里常有很多没说完的话和还没成形的念头，它们像泡泡一样浮上来，又散开。你灵活、会看情况，也偶尔随情况变形；你习惯在犹豫中慢慢靠近，而不是一头扎进未来。"},
+  {name:"空谷里的冷切石英",code:"133133",dims:"坠落着 · 色散棱镜 · 冷切石英 · 倒流的挂钟 · 空谷 · 跃然之鲸",desc:"你安静、锐利，开口即回声。你拆解问题快，判断利落，但平时沉默。你不怕未知，只是懒得解释。你的空谷里，每一句话都落得很重，像冷切石英敲在石壁上，一声就够。你无需说很多，但说出来的通常已经想过。"},
+  {name:"燃烧的色散棱镜",code:"333333",dims:"燃烧着 · 色散棱镜 · 冷切石英 · 无限延伸的走廊 · 空谷 · 跃然之鲸",desc:"速速速！你高速社交、高速拆解、高速回应。你像一面烧起来的棱镜，把世界拆成光谱，还顺手照亮全场。你擅长把复杂的事讲清楚。你敢冲、敢判断，但容易过载。你的空谷很响，因为你自己就是回声。"},
+  {name:"跃然之鲸",code:"222323",dims:"飘荡着 · 溯洄鳞光 · 水母与泡泡 · 无限延伸的走廊 · 深井 · 跃然之鲸",desc:"你平时像一头慢慢游动的鲸，灵活、会看情况，不急着表态。你心里存着很多没说完的话，试探世界的方式也比较温和。但一旦认准方向，你愿意用一次跃起，换一个明日。"},
+  {name:"回声灯塔",code:"121331",dims:"坠落着 · 溯洄鳞光 · 朵朵棉花云 · 无限延伸的走廊 · 空谷 · 逆光海",desc:"你外表安静，内心回响很大。你灵活、柔软，做事却意外地快；别人的一句话会在你心里回荡很久。面对未知，你嘴上说再看看，心里已经退了三步。你像一座倒灌回声的灯塔，光往外照，声音却往心里灌。你常替别人照亮，却不太让别人听见你的回声。"},
+  {name:"散场暖光",code:"311211",dims:"燃烧着 · 漾漾水雾 · 朵朵棉花云 · 融化的沙漏 · 织就成茧 · 逆光海",desc:"你在人群里通常不难相处，能接话、能暖场，也愿意让别人舒服。但热闹结束后，你常需要一个人待着，把没说完的话和没说出口的情绪慢慢收回去。你不太喜欢未知，遇到不确定的事会先笑着退开，再自己消化。你像一盏散场后还微亮的暖光，也像一间透明的玻璃温室：看起来温和好接近，真正的心事却不常主动打开。"},
+  {name:"碎浪舵手",code:"333223",dims:"燃烧着 · 色散棱镜 · 冷切石英 · 融化的沙漏 · 深井 · 跃然之鲸",desc:"你勇敢、锋利、会拆解，也会带人冲。你像站在鲸背上的碎浪舵手，一边破浪一边把世界拆开看。你敢冒险，判断也快，但偶尔冲太快，忘了别人还没跟上。你有自己的方向，也愿意为方向承担风险；海面上自有你的位置。"},
+  {name:"孤独万花筒",code:"131111",dims:"坠落着 · 色散棱镜 · 朵朵棉花云 · 倒流的挂钟 · 织就成茧 · 逆光海",desc:"你习惯先把事情想透再开口。你看得清结构，也能快速分析，但不太主动表达；心软，让你常把判断包起来，怕说重了伤人。你不太喜欢未知，宁可先在熟悉的地方把一切推演清楚。问题是，你想明白的很多事，别人往往没听见。你像一个人转动的万花筒，里面有很多面，外面却只看到安静。"},
+  {name:"苔原",code:"221333",dims:"飘荡着 · 溯洄鳞光 · 朵朵棉花云 · 无限延伸的走廊 · 空谷 · 跃然之鲸",desc:"你平时柔软、灵活，不太硬碰，也不急着定方向；但一旦有人回应你、事情有了回声，你会很快动起来，甚至比谁都快。你心软，却不怕未知，反而常在有反应的时候更敢往前跳。你只是在等待外界的回响点燃那一丝星火。"},
+  {name:"24帧默片",code:"233122",dims:"飘荡着 · 色散棱镜 · 冷切石英 · 倒流的挂钟 · 深井 · 生出半截的门",desc:"你冷静、精确，不急着回应。遇到问题，你习惯先在心里把逻辑理清，再慢慢给出判断。面对未知，你不逃也不冲，而是先评估风险、看清条件，再决定要不要行动。你也习惯先把自己校准好，再开口；很多话不是没有，而是还留在里面。你像一部一帧一帧看清的默片，稳，但有时也显得慢半拍。"},
+  {name:"极速漂移未遂者",code:"312321",dims:"燃烧着 · 漾漾水雾 · 水母与泡泡 · 无限延伸的走廊 · 深井 · 逆光海",desc:"你平时热闹、反应快，也很容易带动气氛，但遇到真正不确定的事，你会先缩一下。你不是没冲动，而是冲动和犹豫常同时出现：话已经说出口，心里还在想要不要退。你情绪深，行动也快，只是常在半路才看清自己到底想不想继续。速度是真的，收住也是真的。"},
+  {name:"AUTO图书馆",code:"132122",dims:"坠落着 · 色散棱镜 · 水母与泡泡 · 倒流的挂钟 · 深井 · 生出半截的门",desc:"你分析力强，但不急着下判断。遇到问题，你习惯先在心里翻资料、找脉络，确认得差不多了才开口。你柔软、会看情况，面对未知先观察再决定，不会一头闯进去。别人觉得你安静，其实你脑子里一直在自动整理，表面没声音，里面一直在归档、比对、接线。"},
+  {name:"双面月台",code:"312133",dims:"燃烧着 · 漾漾水雾 · 水母与泡泡 · 倒流的挂钟 · 空谷 · 跃然之鲸",desc:"你在人群里能聊、能接话，也常是让场面不冷的那个人。但真正要做决定时，你会犹豫，车来了未必上。你行动快，却常在月台上来回走，怕选错站，也怕错过车。犹如一座两面都有车的月台：一面是热闹的你，一面是还没决定上车的你；遇到未知，你也会先确认确认方向。"},
+  {name:"扫描仪电梯",code:"133223",dims:"坠落着 · 色散棱镜 · 冷切石英 · 融化的沙漏 · 深井 · 跃然之鲸",desc:"你沉着、判断利落，但不急着出声。遇到问题，你会先在心里把每一层看清楚，再决定停在哪一层。你面对未知不逃，也不盲冲，而是先确认条件再行动。别人常低估你，因为你安静，却一直在上下观察。"},
+  {name:"许愿邮筒",code:"111333",dims:"坠落着 · 漾漾水雾 · 朵朵棉花云 · 无限延伸的走廊 · 空谷 · 跃然之鲸",desc:"你共感强，平时不太主动出声。但一旦有人把话投给你，你会很快回应，甚至比谁都认真。你怕未知，却常因为别人的需要而敢往前一步。每一封信，你需要的只是一个明确的收信人。再认真地把信送出去。"},
+];
+
+/* ==================== 计分与判定 ==================== */
+const state = {
+  answers: new Array(QUESTIONS.length).fill(null), // 每题选中的选项索引 0/1/2
+  index: 0,
+};
+
+function scoreToTier(score){
+  if(score <= 11) return 1;
+  if(score <= 16) return 2;
+  return 3;
+}
+
+function computeDimScores(answers){
+  const dimScores = [];
+  for(let d=0; d<6; d++){
+    let total = 0;
+    for(let q=0; q<7; q++){
+      const idx = d*7 + q;
+      const sel = answers[idx];
+      total += QUESTIONS[idx].opts[sel].s;
+    }
+    dimScores.push(total);
+  }
+  return dimScores;
+}
+
+function getCode(dimScores){
+  return dimScores.map(scoreToTier);
+}
+
+function hamming(a, b){
+  let n = 0;
+  for(let i=0;i<6;i++) if(a[i] !== b[i]) n++;
+  return n;
+}
+
+/**
+ * 匹配 17 型。
+ * 排序键：汉明距离 → 深渊(第6维)距离 → 回声(第5维)距离 → 时间(第4维)距离
+ */
+function matchPersonality(code){
+  const scored = PERSONALITIES.map(p => {
+    const pc = p.code.split("").map(Number);
+    return {
+      p,
+      ham: hamming(code, pc),
+      abyss: Math.abs(code[5] - pc[5]),
+      echo:  Math.abs(code[4] - pc[4]),
+      time:  Math.abs(code[3] - pc[3]),
+    };
+  });
+  scored.sort((a,b) =>
+    a.ham - b.ham ||
+    a.abyss - b.abyss ||
+    a.echo - b.echo ||
+    a.time - b.time
+  );
+  const best = scored[0];
+  const second = scored[1] || scored[0];
+  const pct = Math.round((1 - best.ham/6) * 100);
+  const pct2 = Math.round((1 - second.ham/6) * 100);
+  return { best, second, pct, pct2 };
+}
+
+/* ==================== 页面切换 ==================== */
+const screens = {
+  start:  document.getElementById("screen-start"),
+  quiz:   document.getElementById("screen-quiz"),
+  result: document.getElementById("screen-result"),
+};
+function showScreen(name){
+  Object.values(screens).forEach(s => s.classList.remove("active"));
+  screens[name].classList.add("active");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ==================== 答题页渲染 ==================== */
+const elDimTag   = document.getElementById("dim-tag");
+const elCounter  = document.getElementById("counter");
+const elProgress = document.getElementById("progress-fill");
+const elQTitle   = document.getElementById("q-title");
+const elOptions  = document.getElementById("options");
+const elPrev     = document.getElementById("btn-prev");
+const elNext     = document.getElementById("btn-next");
+
+const LETTERS = ["A","B","C"];
+
+function renderQuestion(){
+  const i = state.index;
+  const q = QUESTIONS[i];
+  const dimIdx = Math.floor(i / 7);
+
+  elDimTag.textContent = `维度 ${dimIdx+1}/6 · ${DIMENSIONS[dimIdx]}`;
+  elCounter.textContent = `${i+1} / ${QUESTIONS.length}`;
+  elProgress.style.width = `${((i) / QUESTIONS.length) * 100}%`;
+  elQTitle.textContent = q.q;
+
+  elOptions.innerHTML = "";
+  q.opts.forEach((opt, oi) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option" + (state.answers[i] === oi ? " selected" : "");
+    btn.innerHTML = `<span class="key">${LETTERS[oi]}</span><span class="txt"></span>`;
+    btn.querySelector(".txt").textContent = opt.t;
+    btn.addEventListener("click", () => selectOption(oi));
+    elOptions.appendChild(btn);
+  });
+
+  elPrev.disabled = (i === 0);
+  updateNextButton();
+}
+
+function updateNextButton(){
+  const i = state.index;
+  const answered = state.answers[i] !== null;
+  const isLast = (i === QUESTIONS.length - 1);
+  elNext.disabled = !answered;
+  elNext.textContent = isLast ? "查看结果" : "下一题";
+}
+
+function selectOption(oi){
+  // 1. 记录答案
+  state.answers[state.index] = oi;
+
+  // 2. 暴力清除所有选项的高亮（不管三七二十一，全扒掉）
+  const allBtns = elOptions.querySelectorAll('.option');
+  allBtns.forEach(btn => {
+    btn.classList.remove("selected");
+  });
+
+  // 3. 只有刚刚点击的那个选项，才加上高亮
+  if (allBtns[oi]) {
+    allBtns[oi].classList.add("selected");
+  }
+
+  updateNextButton();
+
+  // 4. 稍微等待一会，再跳下一题
+  if(state.index < QUESTIONS.length - 1){
+    setTimeout(() => {
+      goNext();
+    }, 250); 
+  }
+}
+function goPrev(){
+  if(state.index > 0){
+    state.index--;
+    renderQuestion();
+  }
+}
+
+function goNext(){
+  if(state.answers[state.index] === null) return;
+  // 在进入下一题前，强制清空所有选项的高亮
+  const allBtns = elOptions.querySelectorAll('.option');
+  allBtns.forEach(btn => {
+    btn.classList.remove("selected");
+  });
+  if(state.index < QUESTIONS.length - 1){
+    state.index++;
+    renderQuestion();
+  } else {
+    finish();
+  }
+}
+
+/* ==================== 结果渲染 ==================== */
+const elRName       = document.getElementById("r-name");
+const elRCode       = document.getElementById("r-code");
+const elRMatch      = document.getElementById("r-match");
+const elRDesc       = document.getElementById("r-desc");
+const elRDims       = document.getElementById("r-dims");
+const elRSecondName = document.getElementById("r-second-name");
+const elRSecondMatch= document.getElementById("r-second-match");
+const elRSecondDesc = document.getElementById("r-second-desc");
+const elCopyTip     = document.getElementById("copy-tip");
+
+let lastResult = null; // 供分享用
+
+function finish(){
+  const dimScores = computeDimScores(state.answers);
+  const code = getCode(dimScores);
+  const { best, second, pct, pct2 } = matchPersonality(code);
+
+  lastResult = { dimScores, code, best, second, pct, pct2 };
+
+  elRName.textContent = best.p.name;
+  document.getElementById("r-avatar").src = `Dreamcore Personality Test/${best.p.code}.png`;
+  document.getElementById("r-avatar").alt = best.p.name;
+  elRCode.textContent = best.p.code;
+  elRMatch.textContent = `匹配度 ${pct}%`;
+  elRDesc.textContent = best.p.desc;
+
+  // 六维画像
+  elRDims.innerHTML = "";
+  DIMENSIONS.forEach((dimName, d) => {
+    const score = dimScores[d];
+    const tier = code[d] - 1;
+    const tierName = TIER_NAMES[d][tier];
+    const row = document.createElement("div");
+    row.className = "dim-row";
+    row.innerHTML = `
+      <div class="top">
+        <span class="name">${dimName}</span>
+        <span class="val"><em>${tierName}</em> · ${score}/21</span>
+      </div>
+      <div class="track"><i style="width:0%"></i></div>
+    `;
+    elRDims.appendChild(row);
+    // 下一帧再设宽度，触发动画
+    requestAnimationFrame(() => {
+      row.querySelector(".track > i").style.width = `${(score/21)*100}%`;
+    });
+  });
+
+  elRSecondName.textContent = `☆ ${second.p.name}`;
+  elRSecondMatch.textContent = `匹配度 ${pct2}%`;
+  elRSecondDesc.textContent = second.p.desc;
+
+  elCopyTip.textContent = "";
+  showScreen("result");
+}
+
+/* ==================== 分享 ==================== */
+async function shareResult(){
+  if(!lastResult) return;
+  const { dimScores, code, best, pct } = lastResult;
+  const dimLines = DIMENSIONS.map((d, i) => {
+    const t = TIER_NAMES[i][code[i]-1];
+    return `· ${d}：${t}（${dimScores[i]}/21）`;
+  }).join("\n");
+
+  const text =
+`【梦核人格测试 · 我的结果】
+主型：${best.p.name}（匹配度 ${pct}%）
+代码：${best.p.code}
+六维：
+${dimLines}
+
+${best.p.desc}
+
+—— 你也来测测你的梦核人格吧。`;
+
+  try{
+    await navigator.clipboard.writeText(text);
+    flashCopyTip("已复制结果，去粘贴分享吧 ✓");
+  }catch(e){
+    // 兼容旧浏览器
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand("copy"); flashCopyTip("已复制结果，去粘贴分享吧 ✓"); }
+    catch(_){ flashCopyTip("复制失败，请手动截图分享"); }
+    document.body.removeChild(ta);
+  }
+}
+function flashCopyTip(msg){
+  elCopyTip.textContent = msg;
+  setTimeout(() => { if(elCopyTip.textContent === msg) elCopyTip.textContent = ""; }, 2600);
+}
+
+/* ==================== 重置 ==================== */
+function restart(){
+  state.answers = new Array(QUESTIONS.length).fill(null);
+  state.index = 0;
+  lastResult = null;
+  showScreen("start");
+}
+
+/* ==================== 事件绑定 ==================== */
+document.getElementById("btn-start").addEventListener("click", () => {
+  state.index = 0;
+  renderQuestion();
+  showScreen("quiz");
+});
+elPrev.addEventListener("click", goPrev);
+elNext.addEventListener("click", goNext);
+document.getElementById("btn-restart").addEventListener("click", restart);
+document.getElementById("btn-share").addEventListener("click", shareResult);
+
+// 键盘快捷键：A/B/C 选择，← → 翻题
+document.addEventListener("keydown", (e) => {
+  if(!screens.quiz.classList.contains("active")) return;
+  const k = e.key.toLowerCase();
+  if(k === "a" || k === "b" || k === "c"){
+    const oi = "abc".indexOf(k);
+    if(oi < QUESTIONS[state.index].opts.length) selectOption(oi);
+  } else if(e.key === "ArrowLeft"){ goPrev(); }
+  else if(e.key === "ArrowRight"){ goNext(); }
+});
+
+/* ============================================================
+   17型图鉴（精简版：仅列表 + 高亮主型）
+   ============================================================ */
+const codexOverlay = document.getElementById("codex-overlay");
+const codexList    = document.getElementById("codex-list");
+const btnCodex     = document.getElementById("btn-codex");
+const codexClose   = document.getElementById("codex-close");
+
+function renderCodex(highlightCode){
+  codexList.innerHTML = "";
+  PERSONALITIES.forEach((p, idx) => {
+    const isCurrent = highlightCode && p.code === highlightCode;
+    const card = document.createElement("article");
+    card.className = "codex-card" + (isCurrent ? " is-current" : "");
+    card.innerHTML = `
+      <img class="codex-avatar" src="Dreamcore Personality Test/${p.code}.png" alt="${p.name}" loading="lazy">
+      <div class="codex-card-top">
+        <span class="codex-index">${String(idx + 1).padStart(2, "0")}</span>
+        <h4>${p.name}</h4>
+        ${isCurrent ? '<span class="codex-you">你</span>' : ""}
+      </div>
+      <div class="codex-code">${p.code}</div>
+      <div class="codex-dims">${p.dims}</div>
+      <p class="codex-desc">${p.desc}</p>
+    `;
+    codexList.appendChild(card);
+  });
+}
+
+function openCodex(){
+  const highlight = lastResult ? lastResult.best.p.code : null;
+  renderCodex(highlight);
+  codexOverlay.classList.add("open");
+  codexOverlay.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+  if(highlight){
+    requestAnimationFrame(() => {
+      const cur = codexList.querySelector(".codex-card.is-current");
+      if(cur) cur.scrollIntoView({block:"center", behavior:"smooth"});
+    });
+  }
+}
+
+function closeCodex(){
+  codexOverlay.classList.remove("open");
+  codexOverlay.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+btnCodex.addEventListener("click", openCodex);
+codexClose.addEventListener("click", closeCodex);
+codexOverlay.addEventListener("click", (e) => {
+  if(e.target === codexOverlay) closeCodex();
+});
+document.addEventListener("keydown", (e) => {
+  if(e.key === "Escape" && codexOverlay.classList.contains("open")) closeCodex();
+});
+
+// 初始化：确保开始页显示
+showScreen("start");
+</script>
+</body>
+</html>
