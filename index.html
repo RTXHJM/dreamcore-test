@@ -161,6 +161,8 @@
     border-radius:16px;padding:16px 18px;
     display:flex;align-items:center;gap:14px;
     transition:all .18s ease;
+    -webkit-tap-highlight-color: transparent; /* 隱藏手機端自帶的點擊高光 */
+    outline: none; /* 隱藏點擊後的聚焦框 */
   }
   .option:hover{
     background:rgba(167,139,250,.13);
@@ -670,7 +672,15 @@ function renderQuestion(){
   q.opts.forEach((opt, oi) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "option" + (state.answers[i] === oi ? " selected" : "");
+    btn.className = "option"; // 先給個純淨的基礎類別
+    
+    // 如果這題之前選過，才恢復高亮（用於點擊上一題返回時）
+    if (state.answers[i] === oi) {
+      btn.classList.add("selected");
+    }
+    
+    // 【新增】切換題目時，強制讓這個按鈕失去焦點
+    btn.blur();
     btn.innerHTML = `<span class="key">${LETTERS[oi]}</span><span class="txt"></span>`;
     btn.querySelector(".txt").textContent = opt.t;
     btn.addEventListener("click", () => selectOption(oi));
@@ -695,14 +705,20 @@ function selectOption(oi){
 
   // 2. 暴力清除所有选项的高亮（不管三七二十一，全扒掉）
   const allBtns = elOptions.querySelectorAll('.option');
-  allBtns.forEach(btn => {
+  
+  allBtns.forEach((btn, idx) => {
+    // 清除高亮
     btn.classList.remove("selected");
-  });
-
-  // 3. 只有刚刚点击的那个选项，才加上高亮
-  if (allBtns[oi]) {
-    allBtns[oi].classList.add("selected");
-  }
+    // 徹底移除手機端可能殘留的焦點
+    btn.blur(); 
+    
+    // 如果這是剛剛點擊的按鈕，加上高亮，並【瞬間禁用】
+    // 禁用按鈕可以徹底阻斷手機瀏覽器的點擊穿透與焦點殘留
+    if (idx === oi) {
+      btn.classList.add("selected");
+      btn.style.pointerEvents = "none"; // 瞬間斷開點擊事件
+    }
+  });  
 
   updateNextButton();
 
@@ -710,7 +726,7 @@ function selectOption(oi){
   if(state.index < QUESTIONS.length - 1){
     setTimeout(() => {
       goNext();
-    }, 250); 
+    }, 300); 
   }
 }
 function goPrev(){
@@ -722,14 +738,14 @@ function goPrev(){
 
 function goNext(){
   if(state.answers[state.index] === null) return;
-  // 在进入下一题前，强制清空所有选项的高亮
-  const allBtns = elOptions.querySelectorAll('.option');
-  allBtns.forEach(btn => {
-    btn.classList.remove("selected");
-  });
+
   if(state.index < QUESTIONS.length - 1){
     state.index++;
     renderQuestion();
+    // 關鍵：切換新題目後，強制讓瀏覽器的焦點回到網頁的最外層（body）
+    // 這樣它就不會把焦點默認給新出現的第一個按鈕 (A) 了！
+    document.body.focus();
+    document.activeElement.blur();
   } else {
     finish();
   }
