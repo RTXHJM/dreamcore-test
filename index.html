@@ -163,6 +163,10 @@
     transition:all .18s ease;
     -webkit-tap-highlight-color: transparent; /* 隱藏手機端自帶的點擊高光 */
     outline: none; /* 隱藏點擊後的聚焦框 */
+    -webkit-appearance: none;
+    appearance: none;
+    font: inherit;
+    color: var(--ink);
   }
   .option:hover{
     background:rgba(167,139,250,.13);
@@ -414,15 +418,14 @@
   }
 
   /* 終極防幽靈預選覆蓋 */
-  .option:focus {
+  .option:focus:not(:focus-visible) {
     outline: none !important;
     background: rgba(167,139,250,.05) !important;
     border-color: var(--line) !important;
     transform: none !important;
     box-shadow: none !important;
   }
-  
-  .option:focus .key {
+  .option:focus:not(:focus-visible) .key {
     background: rgba(127,182,255,.12) !important;
     color: var(--glow2) !important;
     border-color: rgba(127,182,255,.25) !important;
@@ -700,16 +703,12 @@ function renderQuestion(){
 
   elOptions.innerHTML = "";
   q.opts.forEach((opt, oi) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
+    const btn = document.createElement("div");
     btn.className = "option";
-    
-    if (state.answers[i] === oi) {
-      btn.classList.add("selected");
-    }
-    
-    // 阻止手機端的點擊穿透（幽靈點擊）
-    btn.style.touchAction = "manipulation"; 
+    btn.setAttribute("role", "button");
+    btn.tabIndex = -1;
+    btn.style.touchAction = "manipulation";
+    btn.style.cursor = "pointer";
 
     btn.innerHTML = `<span class="key">${LETTERS[oi]}</span><span class="txt"></span>`;
     btn.querySelector(".txt").textContent = opt.t;
