@@ -168,27 +168,36 @@
     font: inherit;
     color: var(--ink);
   }
-  .option:hover{
-    background:rgba(167,139,250,.13);
-    border-color:rgba(167,139,250,.6);
-    transform:translateX(3px);
-    box-shadow:0 8px 26px rgba(80,60,180,.25);
-  }
   .option .key{
     flex:0 0 30px;height:30px;border-radius:9px;
     display:grid;place-items:center;font-weight:800;font-size:13px;
     background:rgba(127,182,255,.12);border:1px solid rgba(127,182,255,.25);
     color:var(--glow2);transition:all .18s ease;
   }
-  .option:hover .key,
-  .option.selected .key{
-    background:linear-gradient(120deg,var(--glow2),var(--glow));
-    color:#0a0720;border-color:transparent;
+
+ /* 👇 hover 只在真正有鼠标的设备生效，手机触摸不会“粘住” */
+  @media (hover: hover) and (pointer: fine){
+    .option:hover{
+      background:rgba(167,139,250,.13);
+      border-color:rgba(167,139,250,.6);
+      transform:translateX(3px);
+      box-shadow:0 8px 26px rgba(80,60,180,.25);
+    }
+    .option:hover .key{
+      background:linear-gradient(120deg,var(--glow2),var(--glow));
+      color:#0a0720;border-color:transparent;
+    }
   }
+
+  /* 👇 selected 单独保留，不受 hover 媒体查询影响 */
   .option.selected{
     border-color:var(--glow);
     background:linear-gradient(120deg,rgba(167,139,250,.20),rgba(127,182,255,.12));
     box-shadow:0 0 0 1px rgba(167,139,250,.4), 0 10px 30px rgba(100,80,220,.25);
+  }
+  .option.selected .key{
+    background:linear-gradient(120deg,var(--glow2),var(--glow));
+    color:#0a0720;border-color:transparent;
   }
   .option .txt{flex:1;font-size:15.5px;line-height:1.55}
   .nav-row{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
@@ -696,12 +705,17 @@ function renderQuestion(){
   const q = QUESTIONS[i];
   const dimIdx = Math.floor(i / 7);
 
+  // ① 渲染前：先把旧选项的焦点清掉
+  if (document.activeElement && elOptions.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+  elOptions.innerHTML = "";
+
   elDimTag.textContent = `维度 ${dimIdx+1}/6 · ${DIMENSIONS[dimIdx]}`;
   elCounter.textContent = `${i+1} / ${QUESTIONS.length}`;
   elProgress.style.width = `${((i) / QUESTIONS.length) * 100}%`;
   elQTitle.textContent = q.q;
 
-  elOptions.innerHTML = "";
   q.opts.forEach((opt, oi) => {
     const btn = document.createElement("div");
     btn.className = "option";
@@ -709,6 +723,11 @@ function renderQuestion(){
     btn.tabIndex = -1;
     btn.style.touchAction = "manipulation";
     btn.style.cursor = "pointer";
+
+    // ② 恢复当前题已选答案（返回上一题时用）
+    if (state.answers[i] === oi) {
+      btn.classList.add("selected");
+    }
 
     btn.innerHTML = `<span class="key">${LETTERS[oi]}</span><span class="txt"></span>`;
     btn.querySelector(".txt").textContent = opt.t;
@@ -718,6 +737,22 @@ function renderQuestion(){
 
   elPrev.disabled = (i === 0);
   updateNextButton();
+
+  // ③ 渲染后下一帧：再清一次焦点，并强制移除非当前答案的 selected/内联样式
+  requestAnimationFrame(() => {
+    if (document.activeElement && document.activeElement.blur) {
+      document.activeElement.blur();
+    }
+    elOptions.querySelectorAll(".option").forEach((b, idx) => {
+      b.blur();
+      if (state.answers[i] !== idx) {
+        b.classList.remove("selected");
+        b.style.background = "";
+        b.style.borderColor = "";
+        b.style.boxShadow = "";
+      }
+    });
+  });
 }
 
 function updateNextButton(){
@@ -728,37 +763,40 @@ function updateNextButton(){
   elNext.textContent = isLast ? "查看结果" : "下一题";
 }
 
+let locking = false;
+
 function selectOption(oi){
-  // 1. 記錄答案
+  if (locking) return;
+  locking = true;
+
   state.answers[state.index] = oi;
 
   const allBtns = elOptions.querySelectorAll('.option');
-  
   allBtns.forEach((btn, idx) => {
-    // 清除所有高亮
     btn.classList.remove("selected");
-    
     if (idx === oi) {
-      // 2. 給選中的按鈕加高亮
       btn.classList.add("selected");
-      
-      // 3. 徹底阻斷手機的點擊殘留：立刻讓按鈕失去焦點
-      btn.blur(); 
+      btn.blur();
     }
   });
 
   updateNextButton();
 
-  // 4. 留出視覺反饋時間後，進入下一題
-  if(state.index < QUESTIONS.length - 1){
+  if (state.index < QUESTIONS.length - 1) {
     setTimeout(() => {
-      // 延遲結束後，再強制全體失焦一次，確保切題瞬間毫無殘留
-      const btns = elOptions.querySelectorAll('.option');
-      btns.forEach(b => b.blur());
+      // 跳转前再清一次焦点，防止焦点被带到下一题同索引
+      if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+      }
+      elOptions.querySelectorAll('.option').forEach(b => b.blur());
       goNext();
-    }, 250); 
+      locking = false;
+    }, 250);
+  } else {
+    locking = false;
   }
 }
+
 function goPrev(){
   if(state.index > 0){
     state.index--;
@@ -767,14 +805,12 @@ function goPrev(){
 }
 
 function goNext(){
-  if(state.answers[state.index] === null) return;
-  
-  if(state.index < QUESTIONS.length - 1){
+  if (state.answers[state.index] === null) return;
+
+  if (state.index < QUESTIONS.length - 1) {
     state.index++;
     renderQuestion();
-    
-    // 切換題目後，強制讓手機瀏覽器失去所有焦點
-    document.activeElement.blur(); 
+    // renderQuestion 里已经做了下一帧清焦点，这里不用再 blur
   } else {
     finish();
   }
